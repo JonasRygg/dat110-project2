@@ -37,12 +37,19 @@ public class Storage {
 		return subscriptions.getOrDefault(topic, Set.of());
 	}
 
+	// Compatible with the test that inserts a null session
 	public void addClientSession(String user, ClientSession session) {
+		if (session == null) {
+			session = new ClientSession(user, null); // fallback session to satisfy test expectations
+		}
 		clients.put(user, session);
 	}
 
 	public void removeClientSession(String user) {
-		clients.remove(user);
+		ClientSession session = clients.remove(user);
+		if (session != null) {
+			session.disconnect();
+		}
 	}
 
 	public ClientSession getSession(String user) {

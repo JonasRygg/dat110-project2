@@ -69,12 +69,17 @@ public class MessageUtils {
 		Logger.log("Sent message: " + message.toString());
 	}
 
-	public static Message receive(Connection connection) {
-		if (connection.hasData()) {
-			Message msg = fromTransportMessage(connection.receive());
-			Logger.log("Received message: " + msg.toString());
-			return msg;
+	public static Message receive (Connection connection) {
+		Logger.log("Trying to receive...");
+		TransportMessage tmsg = connection.receive();
+		if (tmsg == null) {
+			Logger.log("Transport message was null");
+			return null;
 		}
-		return null; // Return null if no data is available
+		Logger.log("Received transport msg: " + new String(tmsg.getData()));
+		Message msg = fromTransportMessage(tmsg);
+		Logger.log("Parsed message: " + msg);
+		return msg;
 	}
+
 }
