@@ -50,19 +50,22 @@ public class Broker extends Stopable {
 				}
 			}
 	}
-	
+
 	private void waitConnect(Connection connection) {
-				
 		Message msg = MessageUtils.receive(connection);
-		
+
+		if (msg == null) {
+			Logger.log("Received null message in waitConnect(), ignoring...");
+			return;
+		}
+
 		if (msg.getType() == MessageType.CONNECT) {
-			
 			ConnectMsg cmsg = (ConnectMsg) msg;
 			dispatcher.onConnect(cmsg, connection);
-			
 		} else {
 			System.out.println("Protocol error: first message should be connect");
 		}
 	}
-	
+
+
 }

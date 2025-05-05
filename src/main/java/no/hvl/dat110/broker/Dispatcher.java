@@ -56,6 +56,11 @@ public class Dispatcher extends Thread {
 	}
 
 	private void dispatch(ClientSession client, Message msg) {
+		if (msg == null) {
+			Logger.log("Received null message, skipping dispatch.");
+			return;
+		}
+
 		Logger.log("Dispatching message: " + msg.toString());
 
 		switch (msg.getType()) {
@@ -67,6 +72,7 @@ public class Dispatcher extends Thread {
 				break;
 		}
 	}
+
 
 	private void onPublish(PublishMsg msg) {
 		Logger.log("onPublish: " + msg.toString());
