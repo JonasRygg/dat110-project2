@@ -45,10 +45,12 @@ public abstract class Test0Base {
 	public void tearDown() throws Exception {
 		
 		try {
-			Thread.sleep(10000); // let the system run for a while
-			broker.join();
+			Thread.sleep(3000);   // 3 seconds is enough
 			dispatcher.doStop();
+			broker.doStop();      // <--- ensure broker is stopped too
+			broker.join();
 			dispatcher.join();
+
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

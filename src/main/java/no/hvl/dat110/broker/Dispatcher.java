@@ -2,9 +2,7 @@ package no.hvl.dat110.broker;
 
 import java.util.Collection;
 import no.hvl.dat110.common.Logger;
-import no.hvl.dat110.messages.ConnectMsg;
-import no.hvl.dat110.messages.Message;
-import no.hvl.dat110.messages.PublishMsg;
+import no.hvl.dat110.messages.*;
 import no.hvl.dat110.messagetransport.Connection;
 
 public class Dispatcher extends Thread {
@@ -67,11 +65,32 @@ public class Dispatcher extends Thread {
 			case PUBLISH:
 				onPublish((PublishMsg) msg);
 				break;
+
+			case SUBSCRIBE:
+				SubscribeMsg subMsg = (SubscribeMsg) msg;
+				storage.addSubscriber(client.getUser(), subMsg.getTopic());
+				Logger.log("SUBSCRIBE processed for user " + client.getUser() + " on topic " + subMsg.getTopic());
+				break;
+
+			case UNSUBSCRIBE:
+				UnsubscribeMsg unsubMsg = (UnsubscribeMsg) msg;
+				storage.removeSubscriber(client.getUser(), unsubMsg.getTopic());
+				Logger.log("UNSUBSCRIBE processed for user " + client.getUser() + " on topic " + unsubMsg.getTopic());
+				break;
+
+			case DISCONNECT:
+				client.disconnect();
+				storage.removeClientSession(client.getUser());
+				Logger.log("DISCONNECT processed for user " + client.getUser());
+				break;
+
 			default:
 				Logger.log("Unhandled message type: " + msg.getType());
 				break;
 		}
 	}
+
+
 
 
 	private void onPublish(PublishMsg msg) {
