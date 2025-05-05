@@ -52,4 +52,8 @@ public class Storage {
 	public Collection<ClientSession> getSessions() {
 		return clients.values();
 	}
+
+	public Set<String> getTopics() {
+		return subscriptions.keySet();
+	}
 }

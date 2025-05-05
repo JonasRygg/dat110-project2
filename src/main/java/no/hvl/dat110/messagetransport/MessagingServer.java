@@ -7,57 +7,50 @@ import java.net.Socket;
 public class MessagingServer {
 
 	private ServerSocket welcomeSocket;
-	
+
 	public MessagingServer(int port) {
-		
+		if (port < 0 || port > 65535) {
+			throw new IllegalArgumentException("Port number must be between 0 and 65535");
+		}
+
 		try {
-		
 			this.welcomeSocket = new ServerSocket(port);
-			
+			System.out.println("Messaging server started on port " + port);
 		} catch (IOException ex) {
-			
-			System.out.println("Messaging server: " + ex.getMessage());
+			System.err.println("Messaging server: Failed to start on port " + port);
 			ex.printStackTrace();
+			throw new RuntimeException("Could not start server", ex);
 		}
 	}
 
-	// accept an incoming connection from a client
-	public Connection accept () {
-		
+	// Accept an incoming connection from a client
+	public Connection accept() {
 		Connection connection = null;
-		
-		// TODO
-		// accept TCP connection on welcome socket and create connection
-		
+
 		try {
-			
+			System.out.println("Waiting for client connection...");
 			Socket connectionSocket = welcomeSocket.accept();
-			
+			System.out.println("Client connected: " + connectionSocket.getInetAddress());
+
 			connection = new Connection(connectionSocket);
-			
 		} catch (IOException ex) {
-			
-			System.out.println("Messaging server: " + ex.getMessage());
+			System.err.println("Messaging server: Error accepting connection");
 			ex.printStackTrace();
-			// TODO: closing welcomeSocket
 		}
-		
+
 		return connection;
-
 	}
-	
+
+	// Stop the server and close the socket
 	public void stop() {
-		
-		if (welcomeSocket != null) {
-			
+		if (welcomeSocket != null && !welcomeSocket.isClosed()) {
 			try {
-			welcomeSocket.close();
+				welcomeSocket.close();
+				System.out.println("Messaging server stopped.");
 			} catch (IOException ex) {
-				
-			System.out.println("Messaging server: " + ex.getMessage());
-			ex.printStackTrace();
-		}
+				System.err.println("Messaging server: Error closing server socket");
+				ex.printStackTrace();
+			}
 		}
 	}
-
 }

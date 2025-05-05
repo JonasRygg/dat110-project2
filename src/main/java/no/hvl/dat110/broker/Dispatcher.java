@@ -32,7 +32,7 @@ public class Dispatcher extends Thread {
 			}
 
 			try {
-				Thread.sleep(1000); // Prevent excessive CPU usage
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -43,12 +43,14 @@ public class Dispatcher extends Thread {
 		running = false;
 	}
 
-	// 🔹 **FIX: Add missing onConnect() method**
+	public void doStop() {
+		running = false;
+	}
+
 	public void onConnect(ConnectMsg msg, Connection connection) {
 		String user = msg.getUser();
 		Logger.log("onConnect: " + msg.toString());
 
-		// Create a session for the user
 		ClientSession session = new ClientSession(user, connection);
 		storage.addClientSession(user, session);
 	}

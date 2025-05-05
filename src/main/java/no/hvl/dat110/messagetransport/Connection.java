@@ -7,9 +7,9 @@ import java.net.Socket;
 
 public class Connection {
 
-	private DataOutputStream outStream; // for writing bytes to the TCP connection
-	private DataInputStream inStream; // for reading bytes from the TCP connection
-	private Socket socket; // socket for the underlying TCP connection
+	private DataOutputStream outStream;
+	private DataInputStream inStream;
+	private Socket socket;
 
 	public Connection(Socket socket) {
 		try {
@@ -17,7 +17,7 @@ public class Connection {
 			outStream = new DataOutputStream(socket.getOutputStream());
 			inStream = new DataInputStream(socket.getInputStream());
 		} catch (IOException ex) {
-			System.out.println("Connection: " + ex.getMessage());
+			System.out.println("Connection initialization failed: " + ex.getMessage());
 			ex.printStackTrace();
 		}
 	}
@@ -27,50 +27,45 @@ public class Connection {
 			byte[] sendbuf = message.encapsulate();
 			outStream.writeInt(sendbuf.length);
 			outStream.write(sendbuf);
+			outStream.flush(); // Ensure data is fully sent before closing
 		} catch (IOException ex) {
-			System.out.println("Connection: " + ex.getMessage());
+			System.out.println("Error sending message: " + ex.getMessage());
 			ex.printStackTrace();
 		}
 	}
 
 	public boolean hasData() {
-		boolean hasdata = false;
+		boolean hasData = false;
 		try {
-			hasdata = inStream.available() > 0;
+			hasData = inStream.available() > 0;
 		} catch (IOException ex) {
-			System.out.println("Connection: " + ex.getMessage());
+			System.out.println("Error checking data availability: " + ex.getMessage());
 			ex.printStackTrace();
 		}
-		return hasdata;
+		return hasData;
 	}
 
 	public TransportMessage receive() {
 		TransportMessage message = new TransportMessage();
-		byte[] recvbuf;
-
 		try {
 			int length = inStream.readInt();
-			recvbuf = new byte[length];
-
-			inStream.readFully(recvbuf); // Ensures full read, no need for extra check
-
+			byte[] recvbuf = new byte[length];
+			inStream.readFully(recvbuf);
 			message.decapsulate(recvbuf);
 		} catch (IOException ex) {
-			System.out.println("Connection: " + ex.getMessage());
+			System.out.println("Error receiving message: " + ex.getMessage());
+			ex.printStackTrace();
 		}
-
 		return message;
 	}
 
-
-	// Close the connection by closing streams and the underlying socket
 	public void close() {
 		try {
 			outStream.close();
 			inStream.close();
 			socket.close();
 		} catch (IOException ex) {
-			System.out.println("Connection: " + ex.getMessage());
+			System.out.println("Error closing connection: " + ex.getMessage());
 			ex.printStackTrace();
 		}
 	}
